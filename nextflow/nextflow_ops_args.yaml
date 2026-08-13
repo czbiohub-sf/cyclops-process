@@ -1,0 +1,610 @@
+experiment: ops0105_20260106
+# Single source of truth for the experiment output base; consumed by iss.config's
+# env{} (OPS_OUTPUT_BASE_DIR) and the GPU-telemetry beforeScript. Set it here per
+# run, or export OPS_OUTPUT_BASE_DIR — iss.config errors out if neither is given.
+# output_base_dir: /path/to/ops_data
+# Single source of truth for GPU architecture targeting (CuPy/PyTorch sm support);
+# applied to every GPU step via the clusterOptions closure in iss.config (keeps steps
+# off the Blackwell/sm_120 node). A step needing different hardware overrides with
+# ext.gpu_constraint in its withName block.
+gpu_constraint: '[a100_80|h100|h200]'
+n_rounds: 9  # ISS sequencing rounds only — does not include round 0 (nuclear reference)
+iss_only: false
+wells:
+  - A/1
+  - A/2
+  - A/3
+
+ngff_version: &ngff_version "0.5"
+
+processes:
+  gpuTask: # Demo gpu yaml
+    executor: 'slurm'
+    cpus: 8
+    memory: '32 GB'
+    clusterOptions: '--gres=gpu:2'
+  localTask: # Demo local executor yaml
+    executor: 'local'
+    cpus: 2
+    memory: '4 GB'
+  convert_tiff_to_zarrv3:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "400G"
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: iss
+  stack_symlinks:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 15
+      cpus: 2
+      mem: "16G"
+      slurm_partition: "cpu"
+    # pre_nuclei_round / skip_pre_dapi_round now sourced from the experiment
+    # config (stack_symlinks_params). overwrite/ngff_version are run-infra only.
+    python_kwargs:
+      overwrite: true
+      ngff_version: *ngff_version
+  correct_cycle_drift:
+    executor: 'slurm'
+    slurm_params:
+      cpus: 64
+      memory: "200GB"
+      timeout_min: 60
+      slurm_partition: "gpu"
+    # pad/fast now sourced from the experiment config (correct_cycle_drift_params).
+    python_kwargs:
+      overwrite: true
+  estimate_stitch_parameters:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      cpus: 16
+      memory: "64GB"
+      slurm_partition: "gpu"
+    # flipud/fliplr/rot90 now sourced from the experiment config
+    # (estimate_stitch_parameters_iss_params). process is the modality selector.
+    python_kwargs:
+      process: iss
+  segment_and_stitch:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      cpus: 32
+      memory: "128GB"
+      slurm_partition: "gpu"
+      clusterOptions: "--gres=gpu:2 --constraint=[h100|h200]"
+    python_kwargs:
+      process: iss
+      num_workers: 12
+  estimate_and_stitch:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      cpus: 32
+      memory: "350GB"
+      slurm_partition: "gpu"
+      clusterOptions: "--gres=gpu:1 --constraint=[h100|h200]"
+    # flipud/fliplr/rot90 now sourced from the experiment config
+    # (estimate_and_stitch_iss_params). process/zarr_version are run selectors.
+    python_kwargs:
+      process: iss
+      zarr_version: *ngff_version
+  register_iss_seg_to_nucleus:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 16
+  register_iss_nucleus_to_round0:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 16
+  register_iss_round_pair:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 16
+  precreate_iss_registered:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 4
+  finalize_iss_registration:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 80
+      mem: "64G"
+      slurm_partition: "gpu"
+      cpus: 16
+    python_kwargs:
+      # shm-merge: compose the cumulative transforms only; the merge step owns the
+      # warp and writes the registered zarr.
+      skip_apply_transforms: true
+  iss_snr_bimodal:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 8
+  # Fused warp + detect_spots + base_calling, per well (shm; ~350 GB RAM, 1 GPU, 32 CPU).
+  merge_spots_base_calling:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 90
+      mem: "400G"
+      slurm_partition: "gpu"
+      cpus: 32
+    python_kwargs:
+      method: mine
+  optimize_failed_rounds:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 5
+      mem: "20G"
+      slurm_partition: "cpu"
+      cpus: 2
+    python_kwargs: {}
+  get_metrics:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 8
+    python_kwargs:
+      method: mine
+  link_phenotyping:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 32
+    # All phase/gfp/mCherry/cy5 flip+rot params now sourced from the experiment
+    # config (link_phenotyping_params). No run-infra kwargs needed here.
+  link_tracking:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+  correct_distortion_bf:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "64G"
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: lc_5x
+      ngff_version: *ngff_version
+  calibrate_tilt_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 5
+      mem: "64G"
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: track
+  get_n_positions_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+    python_kwargs:
+      process: track
+  reconstruct_tilt_corrected_job_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 750
+      mem: "16G"
+      slurm_partition: "gpu"
+      cpus: 2
+      clusterOptions: "--gres=gpu:1 --constraint=[a100_80|h100|h200]"
+    python_kwargs:
+      process: track
+      ngff_version: *ngff_version
+  reconstruct_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "350G"
+      slurm_partition: "gpu"
+      cpus: 64
+      clusterOptions: "--gres=gpu:1 --constraint=[a100_80|h100|h200]"
+    python_kwargs:
+      process: track
+      ngff_version: *ngff_version
+  vs_preprocess_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "64G"
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: track
+      dim: 2d
+  vs_inference_setup_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      process: track
+      dim: 2d
+  vs_inference_job_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "64G"
+      slurm_partition: "gpu"
+      cpus: 16
+    python_kwargs:
+      process: track
+      dim: 2d
+  vs_combine_setup_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      process: track
+      dim: 2d
+  vs_combine_stream_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 15
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 8
+    python_kwargs:
+      process: track
+      dim: 2d
+  vs_combine_validate_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      process: track
+      dim: 2d
+  estimate_stitch_parameters_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "64G"
+      slurm_partition: "gpu"
+      cpus: 16
+    python_kwargs:
+      process: track
+  segment_and_stitch_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "128G"
+      slurm_partition: "gpu"
+      cpus: 64
+      clusterOptions: "--constraint=[h100|h200]"
+    python_kwargs:
+      process: track
+      num_workers: 12
+  estimate_and_stitch_track:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "50G"
+      slurm_partition: "gpu"
+      cpus: 16
+    python_kwargs:
+      process: track-2d
+      zarr_version: *ngff_version
+  calibrate_tilt_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      # 3 wells run in parallel, each with 4 spoke threads × torch threads
+      mem: "128G"
+      slurm_partition: "cpu"
+      cpus: 64
+    python_kwargs:
+      process: pheno
+  get_n_positions_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+    python_kwargs:
+      process: pheno
+  reconstruct_tilt_corrected_job_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 1500
+      mem: "16G"
+      slurm_partition: "gpu"
+      cpus: 2
+      clusterOptions: "--gres=gpu:1 --constraint=[a100_80|h100|h200]"
+    python_kwargs:
+      process: pheno
+      ngff_version: *ngff_version
+  reconstruct_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 120
+      mem: "200G"
+      slurm_partition: "gpu"
+      cpus: 64
+      clusterOptions: "--gres=gpu:1 --constraint=[a100_80|h100|h200]"
+    python_kwargs:
+      process: pheno
+      ngff_version: *ngff_version
+  create_max_projection_fluor:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "64G"
+      # cpus 64 -> 16 (2026-06-11): a 64-core slot was unschedulable for ~2h on the
+      # contended cpu partition, stalling the whole live-imaging branch. The stage
+      # auto-scales workers to the allocation (get_optimal_workers reads SLURM_CPUS_*),
+      # so fewer cores just means fewer parallel workers, well within the 30-min
+      # timeout. FLAG FOR OWNERS: revisit if this stage is genuinely 64-core-bound.
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: lc_20x_fluor
+      projection: max
+  vs_preprocess_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "64G"
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: pheno
+      dim: 3d
+  vs_inference_setup_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      process: pheno
+      dim: 3d
+  vs_inference_job_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "64G"
+      slurm_partition: "gpu"
+      cpus: 16
+    python_kwargs:
+      process: pheno
+      dim: 3d
+  vs_combine_setup_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      process: pheno
+      dim: 3d
+  vs_combine_stream_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 15
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 8
+    python_kwargs:
+      process: pheno
+      dim: 3d
+  vs_combine_validate_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      process: pheno
+      dim: 3d
+  create_max_projection_lc20x:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 8
+    python_kwargs:
+      process: lc_20x
+  estimate_stitch_parameters_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "100G"
+      slurm_partition: "gpu"
+      cpus: 32
+    python_kwargs:
+      process: pheno
+  prepare_unified_pheno_tiles:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "128G"
+      slurm_partition: "gpu"
+      cpus: 64
+  estimate_and_stitch_pheno:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "500G"
+      slurm_partition: "gpu"
+      cpus: 64
+    python_kwargs:
+      process: pheno-2d
+      zarr_version: *ngff_version
+  viscy_normalize:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 15
+      mem: "200G"
+      slurm_partition: "gpu"
+      cpus: 8
+  build_pyramids_setup:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 10
+      mem: "8G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      use_v3_stores: true
+  build_pyramids_position_job:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "360G"
+      slurm_partition: "cpu"
+      cpus: 32
+  auto_register:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 180
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+  submit_tracking_jobs:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 180
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+  cell_segmentation:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 180
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+  link_calls_tracks:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "250G"
+      slurm_partition: "cpu"
+      cpus: 12
+    python_kwargs:
+      method: mine
+  recompute_metrics:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      method: mine
+  # Live-cell raw conversion (dragonfly tiffs -> zarr). Submits per-dataset jobs
+  # and waits, so the parent needs a generous timeout to cover the children.
+  convert_raw:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 240
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+  # ISS v2 -> v3 store conversion; submits per-position jobs and waits.
+  convert_iss_to_v3:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 180
+      mem: "20G"
+      slurm_partition: "cpu"
+      cpus: 2
+  correct_flatfield_fluor:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "128G"
+      slurm_partition: "cpu"
+      cpus: 16
+    python_kwargs:
+      process: fluor
+  # Fluor->Phase2D channel registration — NF fan-out. setup lists eligible fluor
+  # channels; each job registers ONE channel (SimpleITK MI, CPU).
+  channel_registration_setup:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 15
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 2
+  channel_registration_job:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 30
+      mem: "32G"
+      slurm_partition: "cpu"
+      cpus: 4
+  # Native-20x nuclei segmentation — NF fan-out. setup enumerates positions
+  # (cheap store scan); each job segments ONE position on a GPU.
+  nuclei_segmentation_setup:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 15
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 4
+  # mem/cpus match nuclei_segmentation_slurm.py:117 default_slurm (per-position,
+  # chunk_size=1) to avoid under-provisioning. GPUs=1 (set in iss.config): the
+  # source comment notes 2 was only to match cell_seg and "can drop to 1"; the
+  # pass uses ~2 GB VRAM, and per-position fan-out favors single-GPU jobs.
+  nuclei_segmentation_job:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 60
+      mem: "256G"
+      slurm_partition: "gpu"
+      cpus: 32
+  # Audit + fix v3 stores; submits its own fix jobs and waits.
+  fix_v3_stores:
+    executor: 'slurm'
+    slurm_params:
+      timeout_min: 120
+      mem: "16G"
+      slurm_partition: "cpu"
+      cpus: 4
+    python_kwargs:
+      auto_fix: true
+

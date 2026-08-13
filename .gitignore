@@ -1,0 +1,118 @@
+.env
+*.pyc
+lightning_logs/
+slurm_output/
+slurm_logs/
+slurm_auto_register_logs/
+slurm_iss_register_logs/
+slurm_tracking_logs/
+slurm_segmentation_logs/  
+*__pycache__/
+*.mp4
+depreciated/
+.vscode/
+playground/
+experiments/
+wandb/
+live_screen/
+cyclops_process/one_time_scripts/
+slurm_job_manifests/
+old/
+biahub/
+stitch/
+coding_exps/
+slurm_step_logs/
+median_affines/
+gurobi.log
+slurm_logs/
+CLAUDE.md
+sam/
+tests/QC/bbox_distribution_analysis
+tests/QC/subtile_focus_distribution_analysis
+tests/QC/bbox_debug_stats.csv
+cyclops_process/pipelinerunner/marker_analysis.csv
+cyclops_process/pipelinerunner/pipeline_status.csv
+cyclops_process/pipelinerunner/.pipeline_status_cache.json
+test_fe_graphs/
+tests/QC/reference_cache
+tests/QC/iss_optimization
+/cyclops_process/utils/.slack_threads.json
+.pytest_cache/
+logs/
+.slack_threads.json
+/cyclops_process/pipelinerunner/pipeline_status.txt
+/cyclops_process/pipelinerunner/pipeline_status.md
+/slurm_experiment_logs/
+model/benchmark_zarr_v3/
+slurm_grid_jobs/
+cyclops_process/model/benchmark_zarr_v3/
+nextflow_iss/work
+nextflow_iss/.nextflow
+tests/QC/subtile_focus_distribution_analysis
+tests/QC/bbox_distribution_analysis
+tests/QC/spatial_coherence
+cyclops_process/ops0094
+CLAUDE.md
+mark_notes/
+/configs/
+prompts/
+waveorder_tilt/
+
+# Nextflow additional artifacts
+nextflow_iss/.nextflow.log*
+nextflow_iss/.nextflow.pid
+nextflow_iss/nextflow.log*
+nextflow_iss/work_readable/
+nextflow_iss/results/
+
+# Nextflow reports and traces
+nextflow_iss/*_dag.html
+nextflow_iss/*_report.html
+nextflow_iss/*_timeline.html
+nextflow_iss/*.html
+nextflow_iss/*_trace.txt
+nextflow_iss/all_trace.txt
+
+# Nextflow reports and traces (root directory patterns)
+*_dag.html
+*_report.html
+*_timeline.html
+*_trace.txt
+all_trace.txt
+
+# Dummy files created by workflow step control
+nextflow_iss/dummy_*.done
+
+# Editor temporary files
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# Backup files
+*.orig
+*.bak
+
+# # Test and comparison scripts (development files)
+# compare_*.py
+# check_*.sh
+# test_*.py
+# test_*.sb
+
+# Development logs and temporary files
+*_comparison.log
+gav.jobs
+function_call_log.yaml
+timing/
+
+# SLURM script outputs
+*.sb.o*
+*.sb.e*
+
+# Utility directory for unused scripts
+nextflow_iss/util/cellpainting_segmentation_results/
+cyclops_process/ops0094/
+cyclops_process/processes/feature_extraction/fe/
+
+.claude/

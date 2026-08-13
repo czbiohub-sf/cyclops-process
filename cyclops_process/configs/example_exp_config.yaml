@@ -1,0 +1,89 @@
+# Example configuration file for an OPS experiment.
+# Rename this file to `{experiment}_config.yaml` (e.g., ops0033_20250429_config.yaml)
+# and place it in /path/to/ops_data/configs/experiments_configs/
+# The `run_on_all_experiments` function will look for parameters under a key
+# that matches the function name.
+
+# --- General Settings ---
+experiment_name: "ops0042_20250520"
+wells_to_process: ['A/1/0', 'A/2/0', 'A/3/0']
+run_iss_only: True
+channel_map:
+  GFP: 'mitochondria'
+  mCherry: None
+  BF: 'Phase'
+
+# --- ISS Processing Parameters ---
+convert_iss_params: {}
+stack_symlinks_params: {}
+correct_cycle_drift_params:
+  pad: False
+  fast: True
+estimate_and_stitch_iss_params: {}
+segment_and_stitch_iss_params: {}
+detect_spots_params: {}
+base_calling_params:
+  method: "probabilistic"
+metrics_params:
+  len_reads: 10
+  method: "probabilistic"
+
+# --- Live-cell Processing Parameters ---
+link_phenotyping_params: {}
+link_tracking_params: {}
+correct_distortion_params: {}
+reconstruct_track_params: {}
+reconstruct_pheno_params: {}
+reconstruct_pheno-2d_params: {}
+estimate_stitch_parameters_track_params: {}
+estimate_stitch_parameters_pheno_params: {}
+virtual_staining_track_params: {}
+virtual_staining_pheno_params: {}
+
+# --- Segmentation ---
+create_max_projection_lc_5x_params:
+  slices: [4, 7]
+create_max_projection_lc_20x_params:
+  slices: [3, 4]
+segment_and_stitch_track_params: {}
+segment_and_stitch_pheno_params: {}
+segmentation_pheno_cells_params: {}
+assemble_params:
+  phase_z: 0
+  phase_fliplr: True
+  phase_flipud: False
+  phase_rot90: 1
+  gfp_fliplr: True
+  gfp_flipud: False
+  gfp_rot90: 0
+  mCherry_fliplr: True
+  mCherry_flipud: False
+  mCherry_rot90: 0
+
+# --- Tracking ---
+apply_registration_tracking_params: {}
+stack_params: {}
+labels_to_contours_params: {}
+track_well_params: {}
+link_calls_tracks_params:
+  ISS_method: "probabilistic"
+  confidence_threshold: 0.95
+create_dataset_params: {}
+
+# --- Feature Extraction Parameters ---
+feature_extraction_params:
+  create_morphology_dataset:
+    debug_tile_count: null
+  run_organelle_segmentation:
+    debug_tile_count: null
+    use_cpu: True
+    frangi_postprocess: False
+    use_clahe: True
+    post_clahe_smoothing_sigma: 1
+  extract_features_for_experiment:
+    debug_tile_count: null
+    full_features: False
+
+
+
+# OPS processing pipeline tracking

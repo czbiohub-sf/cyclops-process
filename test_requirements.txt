@@ -1,0 +1,27 @@
+# PyPI runtime deps needed to COLLECT + run the unit test suite in CI.
+# Heavy GPU deps (torch / viscy / waveorder / cupy) are intentionally omitted:
+# the modules that use them import lazily, so collection succeeds without them and
+# real_data / GPU tests are deselected in CI (`-m 'not real_data'`).
+# The two internal/forked git deps (stitching, cyclops_utils) are installed --no-deps
+# in the workflow because they need that flag + an auth token.
+numpy
+pandas
+pyyaml
+pytest
+iohub
+zarr
+scikit-image
+tqdm
+joblib
+click
+psutil
+scipy
+matplotlib
+seaborn
+dask[array]
+distributed
+submitit
+prettytable
+tensorstore
+scikit-learn
+statsmodels

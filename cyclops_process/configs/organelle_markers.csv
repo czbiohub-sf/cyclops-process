@@ -1,0 +1,43 @@
+organelle,marker,type
+lysosome,LysoTracker,live-cell dye
+mitochondria,TOMM70A,protein
+pHrodo-dextran,pHrodo-dextran,live-cell dye
+ER,NCLN,protein
+ChromaLive 488 emission,ChromaLive,live-cell dye
+caspase activity,CellEvent-Caspase,live-cell dye
+oxidative stress,CellROX,live-cell dye
+Fe2+,FeRhoNox,live-cell dye
+microtubules,MAP4,protein
+cell proliferation marker,MKI67,protein
+peroxisome,Peroxi_SPY650,live-cell dye
+nucleolus-GC,NPM3,protein
+nucleolus-DFC,FBL,protein
+autophagosome,MAP1LC3b,protein
+early endosome,EEA1,protein
+stress granule,G3BP1,protein
+nuclear speckles,SRRM2,protein
+ER/Golgi,COP-II,protein
+intermediate filaments,VIM,protein
+lipid droplet,BODIPY,live-cell dye
+nucleus,NucleoLIVE,live-cell dye
+actin filament,FastAct_SPY555,live-cell dye
+plasma membrane,ATP1B3,protein
+autophagosome,ATG101,protein
+trans-Golgi,VAMP3,protein
+proteasome,PSMB7,protein
+chaperones,HSPA1B,protein
+recycling endosome,TFRC,protein
+late endosome,RAB7A,protein
+endosome,VPS35,protein
+ER/Golgi,COPE,protein
+lipid droplet,PLIN2,protein
+ER/golgi bridge,VAPA,protein
+clathrin vesicles,CLTA,protein
+lysosome,LAMP1,protein
+chromatin,H2B,protein
+mitochondria,TOMM20,protein
+ER,SEC61B,protein
+5xUPRE,5xUPRE,reporter
+plasma membrane,SLC3A2,protein
+mitochondria,ChromaLive 561 emission,live-cell dye
+chromatin,H2BC21,protein

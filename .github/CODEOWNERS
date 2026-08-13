@@ -1,0 +1,8 @@
+# Code owners for cyclops-process.
+#
+# GitHub automatically requests review from the owners listed here whenever a
+# pull request touches files they own. Everyone listed must have at least write
+# access to the repo, or GitHub silently skips them.
+
+# Default owners for everything in the repo.
+*   @czbiohub-sf/leonetti-group @ahillsley @gav-sturm
