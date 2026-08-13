@@ -1,0 +1,107 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cyclops_process"
+dynamic = ["version"]
+description = "analysis pipeline for Optical Pooled Screens at CZB"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+authors = [
+    { name = "Alex Hillsley", email = "alexander.hillsley@czbiohub.org" },
+    { name = "Gav Sturm", email = "gav.sturm@czbiohub.org" },
+]
+dependencies = [
+    "cellpose==4.0.8",
+    "cupy-cuda12x>=13.5",
+    # CuPy's cuda12x wheel does NOT bundle cuTENSOR; without libcutensor.so.2 the
+    # GPU workers in correct_cycle_drift (cupyx.scipy.ndimage) crash on import and
+    # silently produce all-zero drift-corrected stores. Pin the version CuPy 14 asks for.
+    "cutensor-cu12>=2.3.0,<3",
+    "iohub>=0.3.7",  # restored OME 0.4 support
+    "pydantic>=2.8",
+    "torch>=2.6",
+    "viscy==0.3.0",
+    "waveorder==3.0.2",
+    "gpustat",
+    "deepdiff",
+    "orderly-set",
+    "prettytable",
+    "numpy",
+    "pandas",
+    "spotiflow",
+    "scipy",
+    "matplotlib",
+    "zarr",
+    "tqdm",
+    "dask",
+    "pyyaml",
+    "click",
+    "natsort",
+    "slurmkit",
+    "discorpy",
+    "lxml",
+    "openpyxl",
+    "scikit-image",
+    "ome-zarr",
+    "iopath",
+    "psutil",
+    "polars",
+    "napari",
+    "napari-animation",
+    "napari-ome-zarr",
+    "PyQt5",
+    "simpleitk>=2.5.5",
+]
+
+[project.optional-dependencies]
+viz = [
+    "tracksdata==0.1.0rc7",
+    "geff",
+]
+model = [
+    "umap-learn",
+    "hdbscan",
+    "pynndescent",
+    "skan",
+    "mahotas",
+    "plotly",
+    "adjustText",
+    "bokeh>=3.1.0",
+]
+rapids = [
+    "cucim-cu12>=25.6",
+]
+tracking = [
+    "gurobipy",
+    "tracksdata==0.1.0rc7",
+    "geff",
+    # processes/track/track.py imports hoct (predict, ILPSolverConfig,
+    # features.add_delta_t). Declared here because this is the package that
+    # imports it — previously eet-features/eet-inference were only declared at
+    # the monorepo root, so cyclops_process relied on the root pulling them in.
+    "hoct==0.1.0rc0",
+]
+dev = [
+    "ops_utils @ git+ssh://git@github.com/czbiohub-sf/ops_utils.git@fix/zarr_V3_precreate",
+    "pytest",
+    "stitch @ git+ssh://git@github.com/ahillsley/stitching.git@beta/nextflow_zarrv3_changes",
+    "tensorstore",
+]
+
+# Hatch config
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+path = "cyclops_process/__init__.py"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --color=yes -m 'not real_data'"
+log_cli = true # when true, messages are printed immediately
+testpaths = ["tests"]
+markers = [
+    "real_data: stage tests that read the read-only ops0094_20251217 reference cache, submit the stage to SLURM via submitit, and compare outputs against cache. Opt in with `pytest -m real_data`.",
+]

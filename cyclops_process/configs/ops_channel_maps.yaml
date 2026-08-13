@@ -1,0 +1,1238 @@
+# mapping of channels to labels for each ops experiment
+ops0185: # Phase only, livecell version of phase fixed experiment
+  - channel_name: BF
+    label: Phase
+
+ops0182: # HELA cell line, with fibronectin-coating
+  - channel_name: BF
+    label: Phase
+
+ops0181:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: cis-Golgi, mStayGold-CENPRaltORF
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0180:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0178: # iss only - first 6 well run
+  - channel_name: BF
+    label: Phase
+
+ops0177: # MBOPS0015
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0176: # P53 KO + 1k lib v2
+  - channel_name: BF
+    label: Phase
+
+ops0175: # P53 KO + 1k lib
+  - channel_name: BF
+    label: Phase
+
+ops0174: # CELL PAINTING V2
+  - channel_name: BF
+    label: Phase
+  # Cell-painting fluorescent panel channels. Segmentation params (when tuned)
+  # live in org_seg_params.yaml keyed by marker (Hoechst, TOMM20, WGA, etc.).
+  - channel_name: CP1_nuclei_Hoechst
+    label: "nuclei, Hoechst"
+    fixed: true
+  - channel_name: CP1_mitochondria_TOMM20
+    label: "mitochondria, TOMM20"
+    fixed: true
+  - channel_name: CP1_plasma_membrane_WGA
+    label: "plasma membrane, WGA"
+    fixed: true
+  - channel_name: CP1_f_actin_Phalloidin
+    label: "f-actin, Phalloidin"
+    fixed: true
+  - channel_name: CP2_nuclei_Hoechst
+    label: "nuclei, Hoechst"
+    fixed: true
+  - channel_name: CP2_nucleoli_NPM1
+    label: "nucleoli, NPM1"
+    fixed: true
+  - channel_name: CP2_microtubules_Tubulin
+    label: "microtubules, Tubulin"
+    fixed: true
+  - channel_name: CP2_ER_ConA
+    label: "ER, ConA"
+    fixed: true
+  # Experiment-level cell-painting metadata (flags for downstream consumers).
+  - cell_painting:
+      enabled: true
+      parts: [1, 2]
+
+ops0173:
+  - channel_name: BF
+    label: Phase
+
+ops0172:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: intermediate filaments, VIM
+
+ops0171:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nuclear speckles, SRRM2
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0170:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+
+ops0169:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0168:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nuclear speckles, SRRM2
+
+ops0167:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: Fe2+, FeRhoNox live-cell dye
+
+ops0166: # HELA
+  - channel_name: BF
+    label: Phase
+
+ops0165:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0164:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: intermediate filaments, VIM
+
+ops0163:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: intermediate filaments, VIM
+
+ops0162: # first HELA cell line
+  - channel_name: BF
+    label: Phase
+
+ops0161:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: cis-Golgi, mStayGold-CENPRaltORF
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0160:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0159:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: laminin, LMNB1
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+
+ops0158:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+
+
+ops0157:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: Fe2+, FeRhoNox live-cell dye
+
+ops0156:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0155:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0154:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+
+ops0153:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+
+ops0152:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0151:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: mitochondria, ChromaLIVE 561 excitation
+
+ops0150:
+  - channel_name: BF
+    label: Phase
+    
+ops0149:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: minibinder localization, GFP
+  - channel_name: mCherry
+    label: autofluorescence, no label
+
+ops0148:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: minibinder integration, mScarlet
+
+ops0147:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0146:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+ops0145:
+  - channel_name: BF
+    label: Phase
+
+ops0144:
+  - channel_name: BF
+    label: Phase
+  # 4i iterative-IF channels — see four_i_config.py FOUR_I_CHANNELS for authoritative
+  # definitions. Segmentation params (when tuned) live in org_seg_params.yaml by marker.
+  # NOTE: For R1, R3, R4, R5 the mouse-488/rabbit-647 antibodies were swapped at
+  # the microscope relative to the acquisition folder name — these labels reflect
+  # the ACTUAL imagery. R2 channels are correct as originally named.
+  - channel_name: 4i_R1_nuclei
+    label: "nuclei, DAPI"
+    fixed: true
+  - channel_name: 4i_R1_gH2AX
+    label: "gH2AX"
+    fixed: true
+  - channel_name: 4i_R1_p53
+    label: "p53"
+    fixed: true
+  - channel_name: 4i_R2_nuclei
+    label: "nuclei, DAPI"
+    fixed: true
+  - channel_name: 4i_R2_c-Myc
+    label: "c-Myc"
+    fixed: true
+  - channel_name: 4i_R2_RSP6
+    label: "RSP6"
+    fixed: true
+  - channel_name: 4i_R3_nuclei
+    label: "nuclei, DAPI"
+    fixed: true
+  - channel_name: 4i_R3_pRb
+    label: "pRb"
+    fixed: true
+  - channel_name: 4i_R3_Rb
+    label: "Rb"
+    fixed: true
+  - channel_name: 4i_R4_nuclei
+    label: "nuclei, DAPI"
+    fixed: true
+  - channel_name: 4i_R4_p21
+    label: "p21"
+    fixed: true
+  - channel_name: 4i_R4_b-catenin
+    label: "b-catenin"
+    fixed: true
+  - channel_name: 4i_R5_nuclei
+    label: "nuclei, DAPI"
+    fixed: true
+  - channel_name: 4i_R5_pS6
+    label: "pS6"
+    fixed: true
+  - channel_name: 4i_R5_NFkB
+    label: "NFkB"
+    fixed: true
+  # Experiment-level 4i metadata (mirrors cell_painting pattern).
+  - four_i:
+      enabled: true
+      rounds: [1, 2, 3, 4, 5]
+
+ops0143:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: autofluorescence, no label
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+
+ops0142:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: mitochondria, ChromaLIVE 561 excitation
+
+ops0141:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: minibinder integration, mScarlet
+
+ops0140:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: laminin, LMNB1
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+ops0139:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: cis-Golgi, mStayGold-CENPRaltORF
+
+ops0138:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: minibinder integration, mScarlet
+
+ops0137:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER/Golgi, COPE
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+ops0135:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: caspase activity, CellEvent-Caspase live-cell dye
+
+ops0134:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: chaperones, HSPA1B
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+ops0133:
+  - channel_name: BF
+    label: Phase
+
+ops0132:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: plasma membrane, ATP1B3
+
+ops0131:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: proteasome, PSMB7
+
+ops0130:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: oxidative stress, CellROX live-cell dye
+  - channel_name: mCherry
+    label: chromatin, H2BC21
+
+
+ops0129:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: mitochondria, TOMM70A
+
+ops0128:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: Fe2+, FeRhoNox live-cell dye
+
+ops0126:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lipid droplet, BODIPY live cell dye
+
+ops0125:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lipid droplet, PLIN2
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+ops0124:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: endocytic vesicle pH, pHrodo-dextran Live Cell Dye
+  - channel_name: mCherry
+    label: chromatin, H2BC21
+ops0122:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: bleedthrough, no label
+  - channel_name: mCherry
+    label: mitochondria, ChromaLIVE 561 excitation
+ops0121:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nucleolus-DFC, FBL
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+ops0120:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nuclear speckles, SRRM2
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+ops0119:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: recycling endosome, TFRC
+
+
+ops0118:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: trans-Golgi, VAMP3
+    # segmentation_config:
+    #   structure_type: vesicular
+    #   method: frangi
+    #   frangi:
+    #     pixel_size_um: 0.25
+    #     beta: 0.1  # Lower beta for rounder structures
+    #     min_radius_um: 0.5  # Larger min to filter noise
+    #     max_radius_um: 5.0  # Nucleoli can be large (~1-3um)
+    #     min_object_size: 5  # Remove small objects
+    #     postprocess: true
+    #   clahe:
+    #     clip_limit: 0.01   # less enhancement (default is now 0.005 in configs.py)
+
+ops0117:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nucleolus-GC, NPM3
+  - channel_name: mCherry
+    label: bleedthrough, no label
+    # segmentation_config:
+    #   structure_type: vesicular
+    #   method: frangi
+    #   frangi:
+    #     pixel_size_um: 0.90
+    #     min_radius_um: 0.5
+    #     max_radius_um: 5.0
+    #     min_object_size: 10
+    #     postprocess: true
+    #   clahe:
+    #     clip_limit: 0.005   # less enhancement (default is now 0.005 in configs.py)
+    #     # kernel_size: [512, 512]  
+ops0116:  
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: cell proliferation marker, MKI67
+  - channel_name: Cy5
+    label: peroxisome, Peroxi_SPY650 live cell dye
+
+ops0115:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: chaperones, HSPA1B
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+
+ops0114:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lysosome, LysoTracker live-cell dye
+
+ops0113:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lysosome, LysoTracker live-cell dye
+ops0110:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: autophagosome, ATG101
+
+ops0108:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: mitochondria, TOMM70A
+
+ops0107:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: endocytic vesicle pH, pHrodo-dextran Live Cell Dye
+
+ops0106:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER, NCLN
+ops0105:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ChromaLIVE 488 excitation
+ops0104:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: caspase activity, CellEvent-Caspase live-cell dye
+
+ops0103:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: empty, no label
+  - channel_name: mCherry
+    label: empty, no label
+
+ops0102:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: oxidative stress, CellROX live-cell dye
+
+ops0101:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: Fe2+, FeRhoNox live-cell dye
+
+ops0100:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: microtubules, MAP4
+ops0098:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: cell proliferation marker, MKI67
+  - channel_name: Cy5
+    label: peroxisome, Peroxi_SPY650 live cell dye
+
+ops0097:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lysosome, LysoTracker live-cell dye
+
+ops0094: # CELL PAINTING V1
+  - channel_name: BF
+    label: Phase
+  # Cell-painting fluorescent panel channels. Segmentation params (when tuned)
+  # live in org_seg_params.yaml keyed by marker (Hoechst, TOMM20, WGA, etc.).
+  - channel_name: CP1_nuclei_Hoechst
+    label: "nuclei, Hoechst"
+    fixed: true
+  - channel_name: CP1_mitochondria_TOMM20
+    label: "mitochondria, TOMM20"
+    fixed: true
+  - channel_name: CP1_plasma_membrane_WGA
+    label: "plasma membrane, WGA"
+    fixed: true
+  - channel_name: CP1_f_actin_Phalloidin
+    label: "f-actin, Phalloidin"
+    fixed: true
+  - channel_name: CP2_nuclei_Hoechst
+    label: "nuclei, Hoechst"
+    fixed: true
+  - channel_name: CP2_nucleoli_NPM1
+    label: "nucleoli, NPM1"
+    fixed: true
+  - channel_name: CP2_microtubules_Tubulin
+    label: "microtubules, Tubulin"
+    fixed: true
+  - channel_name: CP2_ER_ConA
+    label: "ER, ConA"
+    fixed: true
+  # Experiment-level cell-painting metadata (flags for downstream consumers).
+  - cell_painting:
+      enabled: true
+      parts: [1, 2]
+
+ops0092:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nucleolus-GC, NPM3
+
+ops0091:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nucleolus-DFC, FBL
+ops0090:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: autophagosome, MAP1LC3B
+
+ops0089:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: early endosome, EEA1
+ops0087:
+  - channel_name: BF
+    label: Phase
+  - channel_name: farred
+    label: peroxisome, Peroxi_SPY650 live cell dye
+
+ops0086:
+  - channel_name: BF
+    label: Phase
+
+ops0085: 
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: stress granule, G3BP1
+
+
+ops0084:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: nuclear speckles, SRRM2
+
+ops0083:
+  - channel_name: BF
+    label: Phase
+
+ops0082:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: microtubules, MAP4
+
+ops0081:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER/Golgi COP-II, SEC23A
+
+ops0079:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: intermediate filaments, VIM
+
+ops0078:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lipid droplet, BODIPY live cell dye
+
+ops0077:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: nucleus, NucleoLIVE Live Cell dye
+
+ops0076:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: actin filament, FastAct_SPY555 Live Cell Dye
+ops0072:
+  - channel_name: BF
+    label: Phase
+
+ops0071:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: plasma membrane, ATP1B3
+    # segmentation_config:
+    #   structure_type: tubular
+    #   method: frangi
+    #   frangi:
+    #     pixel_size_um: 0.1810
+    #     min_object_size: 25
+    #     postprocess: true
+    #   clahe:
+    #     clip_limit: 0.01   # less enhancement (default is now 0.005 in configs.py)
+ops0070:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: autophagosome, ATG101
+
+ops0069:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: trans-Golgi, VAMP3
+
+ops0068:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: proteasome, PSMB7
+
+ops0067:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: chaperones, HSPA1B
+
+ops0066:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: recycling endosome, TFRC
+
+ops0065:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: late endosome, RAB7A
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0064:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: endosome, VPS35
+  - channel_name: mCherry
+    label: bleedthough, no label
+
+
+ops0063:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: autofluorescence, no label
+  - channel_name: GFP
+    label: autofluorescence, no label
+
+ops0062:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER/Golgi, COPE
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0061:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER/Golgi, COPE
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0060:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lipid droplet, PLIN2
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0059:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lipid droplet, PLIN2
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0058:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER/golgi bridge, VAPA
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0057:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ER/golgi bridge, VAPA
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0056:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: clathrin vesicles, CLTA
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0055:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: clathrin vesicles, CLTA
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0054:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: autophagosome, MAP1LC3B
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0053:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: autophagosome, MAP1LC3B
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0052:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: mitochondria, TOMM70A
+  - channel_name: mCherry
+    label: bleedthough, no label
+ops0051:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: late endosome, RAB7A
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0050:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: microtubules, MAP4
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0049:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: endosome, VPS35
+  - channel_name: mCherry
+    label: bleedthough, no label
+
+ops0048:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lysosome, LAMP1
+  - channel_name: mCherry
+    label: bleedthough, no label
+
+ops0047:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: lysosome, LAMP1
+  - channel_name: mCherry
+    label: bleedthough, no label
+
+ops0046:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: chromatin, H2B (TOMM20-combo)
+  - channel_name: GFP
+    label: mitochondria, TOMM20
+
+ops0045:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: autofluorescence, no label
+  - channel_name: GFP
+    label: autofluorescence, no label
+
+ops0044:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0043:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0042:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0041:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0038:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0037:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0036:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: plasma membrane, SLC3A2
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0035:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: plasma membrane, SLC3A2
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0034:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: empty, no label
+  - channel_name: GFP
+    label: empty, no label
+
+ops0033:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: mitochondria, ChromaLIVE 561 excitation
+
+ops0032:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: ChromaLIVE 488 excitation
+ops0031:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+ops0030:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+ops0029:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0028:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0027:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: stress granule, G3BP1
+  - channel_name: mCherry
+    label: no label
+
+ops0026:
+  - channel_name: BF
+    label: Phase
+  - channel_name: GFP
+    label: stress granule, G3BP1
+  - channel_name: mCherry
+    label: bleedthrough, no label
+
+ops0025:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0024:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0023:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0022:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0021:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0020:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0019:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0018:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0017:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: chromatin, H2BC21
+  - channel_name: GFP
+    label: bleedthough, no label
+
+ops0016:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: chromatin, H2BC21
+  - channel_name: GFP
+    label: bleedthough, no label
+  
+ops0015:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: chromatin, H2BC21
+  - channel_name: GFP
+    label: bleedthough, no label
+
+ops0014:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0013:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0012:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0011:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0010:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0009:
+  - channel_name: BF
+    label: Phase
+
+ops0008:
+  - channel_name: BF
+    label: Phase
+
+ops0007:
+  - channel_name: BF
+    label: Phase
+
+ops0006:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE
+
+ops0003:
+  - channel_name: BF
+    label: Phase
+  - channel_name: mCherry
+    label: ER, SEC61B
+  - channel_name: GFP
+    label: 5xUPRE

@@ -1,0 +1,52 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'CHANGELOG*'
+      - 'LICENSE*'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'CHANGELOG*'
+      - 'LICENSE*'
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # The unit tests import the sibling packages ops_utils (OpsDataset,
+      # create_hcs_store_fast) and stitch. The GPU stack they nominally pull
+      # (cupy-cuda12x, torch, viscy, dexp) is imported lazily and NOT needed for
+      # these tests, so install the siblings --no-deps and provide only their
+      # light runtime deps. ops_utils is INTERNAL (czbiohub-sf) and not on PyPI,
+      # so it needs a read token: add a fine-grained PAT with Contents:read on
+      # czbiohub-sf/ops_utils as the OPS_DEPS_TOKEN repo secret.
+      - name: Install test dependencies
+        env:
+          OPS_DEPS_TOKEN: ${{ secrets.OPS_DEPS_TOKEN }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r test_requirements.txt
+          # stitch: merged v3 code currently lives on the public aliddell fork;
+          # switch to ahillsley/stitching once PR #14 merges to its main.
+          pip install --no-deps "git+https://github.com/aliddell/stitching.git@integration/nextflow"
+          pip install --no-deps "git+https://x-access-token:${OPS_DEPS_TOKEN}@github.com/czbiohub-sf/ops_utils.git@integration/nextflow"
+
+      - name: Run pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          # cyclops_process ships no default storage root: importing it raises unless
+          # OPS_BASE_PATH is set. The unit tests never read from it (real-data tests
+          # are deselected), so any writable path satisfies the import-time check.
+          OPS_BASE_PATH: ${{ runner.temp }}/ops_data
+        run: pytest

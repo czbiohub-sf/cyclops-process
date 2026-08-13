@@ -1,0 +1,630 @@
+# This file centralizes the Slurm resource configurations for each pipeline step.
+# The PipelineRunner will load this file and use these settings when the --slurm-steps flag is active.
+# Tasks that should always run locally can be omitted from this file.
+#
+# NOTE: All steps now run in the unified uv workspace environment (Python 3.12).
+# The legacy per-step `env:` keys have been removed — submitit inherits the
+# active Python interpreter (sys.executable) from the uv venv automatically.
+#
+# Step order follows orchestrator.py registration order.
+# Dependencies define the DAG — steps fire as soon as deps complete.
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Raw conversion (dragonfly tiffs -> zarr on fast partition)
+### Feeds both the tracking and phenotyping chains.
+### ═══════════════════════════════════════════════════════════════════
+
+convert_raw:
+  run_locally: true  # Submits its own per-dataset SLURM jobs and waits
+  slurm_params:
+    timeout_min: 30
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies: None
+
+
+### ═══════════════════════════════════════════════════════════════════
+### ISS Processing
+### ═══════════════════════════════════════════════════════════════════
+
+convert_iss:
+  slurm_params:
+    timeout_min: 20
+    mem: "100G"
+    slurm_partition: "cpu"
+    cpus_per_task: 16
+  dependencies: None
+
+stack_symlinks:
+  slurm_params:
+    timeout_min: 10
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - convert_iss
+
+iss_snr_bimodal:
+  slurm_params:
+    timeout_min: 15
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 32
+  dependencies: stack_symlinks
+
+correct_cycle_drift:
+  slurm_params:
+    gpus_per_node: 1
+    slurm_constraint: "[a100_80|h100|h200|6000_blackwell]"
+    timeout_min: 10
+    mem: "200G"
+    slurm_partition: "gpu"
+    cpus_per_task: 64
+  dependencies:
+    - stack_symlinks
+
+estimate_stitch_parameters_iss:
+  slurm_params:
+    timeout_min: 10
+    mem: "32G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - correct_cycle_drift
+
+segment_and_stitch_iss:
+  slurm_params:
+    gpus_per_node: 2
+    slurm_constraint: "[h100|h200|6000_blackwell]"
+    timeout_min: 10
+    mem: "128G"
+    slurm_partition: "gpu"
+    cpus_per_task: 32
+  dependencies:
+    - estimate_stitch_parameters_iss
+
+estimate_and_stitch_iss:
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 15
+    mem: "350G"
+    slurm_partition: "gpu"
+    cpus_per_task: 32
+    slurm_constraint: "[h100|h200|6000_blackwell]"
+  dependencies:
+    - estimate_stitch_parameters_iss
+    - segment_and_stitch_iss  # symlinks seg labels into stitched ISS store
+
+register_iss_cycles:
+  run_locally: true
+  total_phases: 2  # Phase 1: registration, Phase 2: finalization
+  slurm_params:
+    timeout_min: 30
+    mem: "16GB"
+    cpus_per_task: 2
+  dependencies:
+    - estimate_and_stitch_iss
+
+merge_spots_base_calling:
+  # Parent step is a pure submit_parallel_jobs+wait wrapper — the children
+  # (merge_spots_base_calling_well_mine_*) each request their own GPU+32 CPUs
+  # in iss_merge.py:_well slurm_params. Don't double-allocate at the parent.
+  slurm_params:
+    timeout_min: 60
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - register_iss_cycles
+    - segment_and_stitch_iss
+
+# Convert the ISS registered store to v3 immediately after merge (ISS is
+# independent of track/pheno) and async-delete the v2 source. Runs locally —
+# it just submits the per-position convert jobs and waits, like the old
+# run_v3_conversion did.
+convert_iss_to_v3:
+  run_locally: true
+  slurm_params:
+    timeout_min: 30
+    mem: "20G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - merge_spots_base_calling
+
+optimize_failed_rounds:
+  run_locally: true
+  slurm_params:
+    timeout_min: 5
+    mem: "20G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - convert_iss_to_v3
+
+get_metrics:
+  slurm_params:
+    timeout_min: 15
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 8
+  dependencies:
+    - optimize_failed_rounds
+
+
+### ═══════════════════════════════════════════════════════════════════
+### TRACKING Chain
+### ═══════════════════════════════════════════════════════════════════
+
+
+#### TRACKING preprocessing ####
+link_tracking:
+  slurm_params:
+    timeout_min: 5
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - convert_raw
+
+correct_distortion:
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 15
+    mem: "64G"
+    slurm_partition: "gpu"
+    slurm_constraint: "[a100|h100|h200|6000_blackwell]"
+    cpus_per_task: 16
+  dependencies:
+    - link_tracking
+
+reconstruct_track:
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 10
+    mem: "350G"
+    slurm_partition: "gpu"
+    cpus_per_task: 64
+  dependencies:
+    - correct_distortion
+
+calibrate_tilt_track:
+  slurm_params:
+    timeout_min: 5
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 16
+  dependencies:
+    - correct_distortion
+
+reconstruct_tilt_corrected_track:
+  run_locally: True  # Function has internal SLURM scheduler (per-FOV GPU jobs)
+  slurm_params:
+    timeout_min: 720
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - calibrate_tilt_track
+    - reconstruct_track
+
+virtual_staining_preprocess_track:
+  slurm_params:
+    timeout_min: 10
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 16
+  dependencies:
+    - reconstruct_tilt_corrected_track
+
+virtual_staining_inference_track:
+  run_locally: true
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 15
+    mem: "10G"
+    slurm_partition: "gpu"
+    cpus_per_task: 2
+  dependencies:
+    - virtual_staining_preprocess_track
+
+virtual_staining_combine_only_track:
+  run_locally: true
+  slurm_params:
+    timeout_min: 10
+    mem: "10G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - virtual_staining_inference_track
+
+estimate_stitch_parameters_track:
+  slurm_params:
+    timeout_min: 10
+    mem: "50G"
+    slurm_partition: "cpu"
+    cpus_per_task: 8
+  dependencies:
+    - reconstruct_tilt_corrected_track
+
+segment_and_stitch_track:
+  slurm_params:
+    gpus_per_node: 2
+    slurm_constraint: "[h100|h200|6000_blackwell]"
+    timeout_min: 25
+    mem: "128G"
+    slurm_partition: "gpu"
+    cpus_per_task: 64
+  dependencies:
+    - estimate_stitch_parameters_track
+    - virtual_staining_combine_only_track  # needs tracking_vs.zarr
+
+estimate_and_stitch_track-2d:
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 15
+    mem: "50G"
+    slurm_partition: "gpu"
+    cpus_per_task: 16
+  dependencies:
+    - estimate_stitch_parameters_track
+    - segment_and_stitch_track  # _attach_seg_labels_symlink needs tracking_segmentation_stitched.zarr
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Phenotyping Chain
+### ═══════════════════════════════════════════════════════════════════
+
+link_phenotyping:
+  slurm_params:
+    timeout_min: 20
+    mem: "32G"
+    slurm_partition: "cpu"
+    cpus_per_task: 32
+  dependencies:
+    - convert_raw
+
+create_max_projection_lc_20x_fluor:
+  slurm_params:
+    timeout_min: 15
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 64
+  dependencies:
+    - link_phenotyping
+
+correct_flatfield_fluor:
+  slurm_params:
+    timeout_min: 15
+    mem: "128G"
+    slurm_partition: "cpu"
+    cpus_per_task: 64
+  dependencies:
+    - create_max_projection_lc_20x_fluor
+
+reconstruct_pheno:
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 20
+    mem: "400G"
+    slurm_partition: "gpu"
+    slurm_constraint: "[a100_80|h100|h200|6000_blackwell]"
+    cpus_per_task: 64
+  dependencies:
+    - link_phenotyping
+
+calibrate_tilt_pheno:
+  slurm_params:
+    timeout_min: 30
+    mem: "128G"
+    slurm_partition: "cpu"
+    cpus_per_task: 64
+  dependencies:
+    - link_phenotyping
+
+reconstruct_tilt_corrected_pheno:
+  run_locally: True  # Function has internal SLURM scheduler (per-FOV GPU jobs)
+  slurm_params:
+    timeout_min: 1440
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - calibrate_tilt_pheno
+    - reconstruct_pheno
+
+virtual_staining_preprocess_pheno:
+  # virtual_staining_preprocess() explicitly requests CPU workers
+  # (use_gpu=False at virtual_staining.py:843); the underlying viscy
+  # preprocess subprocess computes normalization statistics on CPU. No
+  # GPU is needed — demote to CPU partition.
+  slurm_params:
+    timeout_min: 45
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 16
+  dependencies:
+    - reconstruct_tilt_corrected_pheno
+
+virtual_staining_inference_pheno:
+  run_locally: true
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 60
+    mem: "10G"
+    slurm_partition: "gpu"
+    cpus_per_task: 2
+  dependencies:
+    - virtual_staining_preprocess_pheno
+
+virtual_staining_combine_only_pheno:
+  run_locally: true
+  slurm_params:
+    timeout_min: 20
+    mem: "24G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - virtual_staining_inference_pheno
+
+create_max_projection_lc_20x:
+  slurm_params:
+    timeout_min: 15
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 64
+  dependencies:
+    - virtual_staining_combine_only_pheno
+
+estimate_stitch_parameters_pheno:
+  # Prior CPU demotion (0.8% mean GPU SM observed) traded 4.8 min GPU wall
+  # for 60+ min CPU wall on ops0171 — the L-BFGS-B position optimizer only
+  # uses ~175% of 32 CPUs (Python-bound), so most of the allocation sat
+  # idle while wall dominated. Reverting to GPU: wall < 10 min in practice,
+  # cost of one GPU-node reservation is worth it.
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 30
+    mem: "100G"
+    slurm_partition: "gpu"
+    slurm_constraint: "[a100|h100|h200|6000_blackwell]"
+    cpus_per_task: 16
+  dependencies:
+    - reconstruct_tilt_corrected_pheno
+
+### segment_and_stitch_pheno retired — see submit_nuclei_segmentation_jobs below.
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Automatic fluor->Phase2D channel registration (CPU; SimpleITK MI in .venv)
+### Fans out one job per channel; runs before the review checkpoint.
+### ═══════════════════════════════════════════════════════════════════
+
+submit_channel_registration_jobs:
+  slurm_params:
+    timeout_min: 30
+    mem: "32G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - reconstruct_tilt_corrected_pheno
+    - correct_flatfield_fluor
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Post-checkpoint Stitching & Assembly
+### (review_fluor_registration checkpoint gates these via DAG runner)
+### ═══════════════════════════════════════════════════════════════════
+
+prepare_unified_pheno_tiles:
+  slurm_params:
+    gpus_per_node: 1
+    timeout_min: 25
+    mem: "128G"
+    slurm_partition: "gpu"
+    slurm_constraint: "[a100|h100|h200|6000_blackwell]"
+    cpus_per_task: 64
+  dependencies:
+    - create_max_projection_lc_20x
+    - submit_channel_registration_jobs
+
+estimate_and_stitch_pheno-2d:
+  slurm_params:
+    gpus_per_node: 2
+    timeout_min: 25
+    # 600G handles ops0155-class experiments where pheno peaks ~580 GB RSS
+    # (4 stripe workers, sharded v3 output). Smaller experiments only need
+    # ~430 GB but the headroom is cheap relative to OOM-kill risk.
+    mem: "400G"
+    slurm_partition: "gpu"
+    slurm_constraint: "[a100_80|h100|h200|6000_blackwell]"
+    cpus_per_task: 32
+  dependencies:
+    - prepare_unified_pheno_tiles
+    - estimate_stitch_parameters_pheno
+
+viscy_normalize:
+  # Bounded-I/O sampling (fast_normalize): CPU-only, ~30s, tiny RAM.
+  # Previously GPU/200G/30min because viscy read full Y*X slices and timed out.
+  slurm_params:
+    timeout_min: 15
+    mem: "32G"
+    slurm_partition: "cpu"
+    cpus_per_task: 8
+  dependencies:
+    - estimate_and_stitch_pheno-2d
+
+build_pyramids:
+  run_locally: true
+  total_phases: 2  # Phase 1: pyramids+overlays, Phase 2: reshard
+  slurm_params:
+    timeout_min: 120
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - estimate_and_stitch_pheno-2d
+    - estimate_and_stitch_track-2d
+    - register_iss_cycles
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Cell Segmentation
+### ═══════════════════════════════════════════════════════════════════
+
+submit_cell_segmentation_jobs:
+  run_locally: true
+  slurm_params:
+    timeout_min: 200
+    mem: "24G"
+    slurm_partition: "cpu"
+    # gpus_per_node: 2
+    # slurm_constraint: "[h100|h200|6000_blackwell]"
+    cpus_per_task: 2
+  dependencies:
+    - build_pyramids
+
+# Native-20x nuclei seg (writes nuclear_seg into v3); local submitter like cell seg.
+submit_nuclei_segmentation_jobs:
+  run_locally: true
+  slurm_params:
+    timeout_min: 200
+    mem: "24G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - build_pyramids
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Automatic Registration & Tracking
+### ═══════════════════════════════════════════════════════════════════
+
+submit_registration_jobs:
+  run_locally: true
+  slurm_params:
+    timeout_min: 60
+    mem: "20GB"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - build_pyramids
+    - submit_nuclei_segmentation_jobs  # reads nuclear_seg (v3)
+
+submit_tracking_jobs:
+  run_locally: true
+  slurm_params:
+    timeout_min: 150
+    mem: "16GB"
+    cpus_per_task: 2
+    slurm_partition: "cpu"
+  dependencies:
+    - submit_registration_jobs
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Zarr V3 Conversion
+### ═══════════════════════════════════════════════════════════════════
+
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Link Calls to Tracks
+### ═══════════════════════════════════════════════════════════════════
+
+link_calls_tracks:
+  slurm_params:
+    timeout_min: 45
+    mem: "250G"
+    slurm_partition: "cpu"
+    cpus_per_task: 12
+  dependencies:
+    - submit_tracking_jobs
+    - estimate_and_stitch_track-2d
+    - submit_cell_segmentation_jobs
+
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Fix v3 stores (audit + fix all missing pyramids, overlays, labels, clims)
+### ═══════════════════════════════════════════════════════════════════
+
+fix_v3_stores:
+  run_locally: true  # Submits its own SLURM jobs internally
+  slurm_params:
+    timeout_min: 20
+    mem: "16G"
+    slurm_partition: "cpu"
+    cpus_per_task: 4
+  dependencies:
+    - link_calls_tracks
+
+
+### ═══════════════════════════════════════════════════════════════════
+### Final QC Metrics
+### ═══════════════════════════════════════════════════════════════════
+
+recompute_metrics:
+  slurm_params:
+    timeout_min: 60
+    mem: "64G"
+    slurm_partition: "cpu"
+    cpus_per_task: 16
+  dependencies:
+    - fix_v3_stores
+    - submit_cell_segmentation_jobs
+
+
+### ═══════════════════════════════════════════════════════════════════
+### End-of-pipeline model inference (parallel to recompute_metrics)
+### ═══════════════════════════════════════════════════════════════════
+# These run_locally driver steps submit their own GPU SLURM sub-jobs and wait,
+# so the driver needs modest resources but a long walltime to cover the wait.
+
+organelle_segmentation:
+  run_locally: true
+  slurm_params:
+    timeout_min: 720
+    mem: "20G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - fix_v3_stores
+    - submit_cell_segmentation_jobs
+    - submit_nuclei_segmentation_jobs
+
+op_feature_extraction:
+  run_locally: true
+  slurm_params:
+    timeout_min: 720
+    mem: "20G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - organelle_segmentation
+
+cp_features:
+  run_locally: true
+  slurm_params:
+    timeout_min: 720
+    mem: "20G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - fix_v3_stores
+    - submit_cell_segmentation_jobs
+    - submit_nuclei_segmentation_jobs
+
+celldino_inference:
+  run_locally: true
+  slurm_params:
+    timeout_min: 720
+    mem: "20G"
+    slurm_partition: "cpu"
+    cpus_per_task: 2
+  dependencies:
+    - fix_v3_stores
+    - submit_cell_segmentation_jobs
+    - submit_nuclei_segmentation_jobs
